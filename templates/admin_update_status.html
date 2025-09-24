@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Request Status</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex flex-col gradient-bg">
+    <main class="flex-grow flex items-center justify-center">
+        <div class="w-full max-w-lg bg-white rounded-2xl card-shadow p-8 mt-10 mb-10 border-2 border-indigo-100">
+            <h2 class="text-2xl font-bold text-purple-800 mb-6 text-center">Update Request Status</h2>
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Institution</label>
+                    <input type="text" name="institution" value="{{ req.institution }}" readonly class="block w-full text-lg rounded-xl border border-gray-300 bg-gray-100 shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Name</label>
+                    <input type="text" name="name" value="{{ req.name }}" readonly class="block w-full text-lg rounded-xl border border-gray-300 bg-gray-100 shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Type</label>
+                    <input type="text" name="type" value="{{ req.type }}" readonly class="block w-full text-lg rounded-xl border border-gray-300 bg-gray-100 shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Current Status</label>
+                    <input type="text" name="current_status" value="{{ req.status }}" readonly class="block w-full text-lg rounded-xl border border-gray-300 bg-gray-100 shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">New Status</label>
+                    <select name="status" required class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                        <option value="pending" {% if req.status == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="resolved" {% if req.status == 'resolved' %}selected{% endif %}>Resolved</option>
+                        <option value="in_progress" {% if req.status == 'in_progress' %}selected{% endif %}>In Progress</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Notes (optional)</label>
+                    <textarea name="notes" rows="3" class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3"></textarea>
+                </div>
+                <button type="submit" class="bg-purple-800 hover:bg-indigo-900 text-white font-bold py-3 px-8 rounded-xl shadow transition text-lg w-full">Update Status</button>
+            </form>
+        </div>
+    </main>
+    {% include 'footer.html' %}
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15);
+        }
+    </style>
+</body>
+</html>

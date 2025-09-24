@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Service Request</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+    <div class="max-w-2xl w-full bg-white rounded-xl shadow-lg p-8 mt-8">
+        <h2 class="text-2xl font-bold text-purple-800 mb-6 text-center">Service Request Details</h2>
+        <table class="min-w-full text-sm">
+            <tbody>
+                <tr><td class="font-bold py-2">ID:</td><td class="py-2">{{ req.id }}</td></tr>
+                <tr><td class="font-bold py-2">Created At:</td><td class="py-2">{{ req.created_at }}</td></tr>
+                <tr><td class="font-bold py-2">Institution:</td><td class="py-2">{{ req.institution }}</td></tr>
+                <tr><td class="font-bold py-2">Type:</td><td class="py-2">{{ req.type }}</td></tr>
+                <tr><td class="font-bold py-2">Name:</td><td class="py-2">{{ req.name }}</td></tr>
+                <tr><td class="font-bold py-2">Department:</td><td class="py-2">{{ req.department }}</td></tr>
+                <tr><td class="font-bold py-2">Email:</td><td class="py-2">{{ req.email }}</td></tr>
+                <tr><td class="font-bold py-2">Mobile:</td><td class="py-2">{{ req.mobile }}</td></tr>
+                {% if req.system_issues is defined %}
+                <tr><td class="font-bold py-2">System Issues:</td><td class="py-2">{{ req.system_issues | join(', ') }}</td></tr>
+                {% endif %}
+                {% if req.printer_model is defined %}
+                <tr><td class="font-bold py-2">Printer Model:</td><td class="py-2">{{ req.printer_model | join(', ') }}</td></tr>
+                {% endif %}
+                {% if req.printer_service is defined %}
+                <tr><td class="font-bold py-2">Printer Service:</td><td class="py-2">{{ req.printer_service }}</td></tr>
+                {% endif %}
+                {% if req.network_service is defined %}
+                <tr><td class="font-bold py-2">Network Service:</td><td class="py-2">{{ req.network_service }}</td></tr>
+                {% endif %}
+                {% if req.projector_issues is defined %}
+                <tr><td class="font-bold py-2">Projector Issues:</td><td class="py-2">{{ req.projector_issues | join(', ') }}</td></tr>
+                {% endif %}
+                {% if req.other_service is defined %}
+                <tr><td class="font-bold py-2">Other Service:</td><td class="py-2">{{ req.other_service }}</td></tr>
+                {% endif %}
+                <tr><td class="font-bold py-2">Status:</td><td class="py-2">{{ req.status }}</td></tr>
+                <tr><td class="font-bold py-2">Date:</td><td class="py-2">{{ req.date }}</td></tr>
+                <tr><td class="font-bold py-2">Image:</td><td class="py-2">{% if req.image_url %}<img src="{{ req.image_url }}" alt="Issue Image" class="max-w-xs rounded border">{% else %}-{% endif %}</td></tr>
+            </tbody>
+        </table>
+        <div class="mt-6 text-center">
+            <a href="/admin_dashboard" class="bg-purple-800 text-white px-6 py-2 rounded-xl shadow hover:bg-indigo-900">Back to Dashboard</a>
+        </div>
+    </div>
+    {% include 'footer.html' %}
+</body>
+</html>

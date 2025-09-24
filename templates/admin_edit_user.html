@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex flex-col gradient-bg">
+    <main class="flex-grow flex items-center justify-center">
+        <div class="w-full max-w-lg bg-white rounded-2xl card-shadow p-8 mt-10 mb-10 border-2 border-indigo-100">
+            <h2 class="text-2xl font-bold text-purple-800 mb-6 text-center">Edit User</h2>
+            <form method="POST">
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Name</label>
+                    <input type="text" name="name" value="{{ user.name }}" class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Institution</label>
+                    <input type="text" name="institution" value="{{ user.institution }}" class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Mobile</label>
+                    <input type="text" name="mobile" value="{{ user.mobile }}" class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-lg font-semibold text-purple-800">Email</label>
+                    <input type="email" name="email" value="{{ user.email }}" class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <button type="submit" class="bg-purple-800 hover:bg-indigo-900 text-white font-bold py-3 px-8 rounded-xl shadow transition text-lg w-full">Save Changes</button>
+            </form>
+        </div>
+    </main>
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%); }
+        .card-shadow { box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15); }
+    </style>
+    {% include 'footer.html' %}
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="min-h-screen flex flex-col gradient-bg">
+    <main class="flex-grow flex items-center justify-center">
+        <div class="w-full max-w-md bg-white rounded-2xl card-shadow p-8 mt-10 mb-10 border-2 border-indigo-100">
+            <h2 class="text-2xl font-bold text-purple-800 mb-6 text-center">Login</h2>
+            <form method="POST" action="/login" class="space-y-5">
+                {% if error %}
+                {% if request.method == 'POST' %}
+                <div class="bg-red-100 text-red-700 rounded-lg px-4 py-2 mb-4 text-center">{{ error }}</div>
+                {% endif %}
+                {% endif %}
+                <div>
+                    <label class="block text-lg font-semibold text-purple-800" for="email">Email ID</label>
+                    <input type="email" id="email" name="email" required class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <div>
+                    <label class="block text-lg font-semibold text-purple-800" for="password">Password</label>
+                    <input type="password" id="password" name="password" required class="block w-full text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-3">
+                </div>
+                <button type="submit" class="bg-purple-800 hover:bg-indigo-900 text-white font-bold py-3 px-8 rounded-xl shadow transition text-lg w-full">Login</button>
+                <div class="text-center mt-4">
+                    <a href="/register" class="text-purple-800 hover:underline">Don't have an account? Register</a>
+                </div>
+                <div class="text-center mt-2">
+                    <a href="/admin_login" class="text-purple-800 hover:underline">Admin Login</a>
+                </div>
+            </form>
+        </div>
+    </main>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15);
+        }
+    </style>
+    {% include 'footer.html' %}
+</body>
+</html>

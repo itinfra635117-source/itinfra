@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg { background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%); }
+        .card-shadow { box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15); }
+        @media (max-width: 1024px) {
+            aside { width: 100%; min-height: auto; position: static; }
+            main { padding: 1rem; }
+        }
+        @media (max-width: 768px) {
+            aside { width: 100%; min-height: auto; position: static; padding: 1rem; }
+            .sidebar-hide { display: none; }
+            main { padding: 0.5rem; }
+            .grid-cols-1, .md\:grid-cols-4 { grid-template-columns: 1fr !important; }
+            .table-responsive { overflow-x: auto; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row gradient-bg">
+    <!-- Sidebar -->
+    <aside class="w-64 md:w-64 bg-purple-900 text-white flex flex-col py-8 px-6 min-h-screen shadow-xl sidebar-hide md:block z-50">
+        <div class="flex items-center mb-10">
+            <i class="fa-solid fa-shield-halved text-3xl mr-3"></i>
+            <span class="font-bold text-2xl tracking-wide">Admin Panel</span>
+        </div>
+        <nav class="flex flex-col gap-4 flex-grow">
+            <a href="/admin_dashboard" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-purple-700 transition"><i class="fa-solid fa-table-list"></i> Dashboard</a>
+            <a href="#requests" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-purple-700 transition"><i class="fa-solid fa-clipboard-list"></i> Requests</a>
+            <a href="#users" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-purple-700 transition"><i class="fa-solid fa-users"></i> Users</a>
+            <a href="/logout" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-purple-700 transition"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </nav>
+    </aside>
+    <!-- Main Content -->
+    <main class="flex-grow px-8 py-10">
+        <h2 class="text-3xl font-bold text-purple-800 mb-8 text-center md:text-left">Welcome, Admin</h2>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center flex flex-col items-center mb-4 md:mb-0">
+                <i class="fa-solid fa-list-check text-purple-800 text-3xl mb-2"></i>
+                <div class="text-2xl font-bold text-purple-800">{{ stats.total }}</div>
+                <div class="text-gray-600">Total Requests</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center flex flex-col items-center mb-4 md:mb-0">
+                <i class="fa-solid fa-circle-check text-green-600 text-3xl mb-2"></i>
+                <div class="text-2xl font-bold text-green-600">{{ stats.resolved }}</div>
+                <div class="text-gray-600">Resolved</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center flex flex-col items-center mb-4 md:mb-0">
+                <i class="fa-solid fa-hourglass-half text-yellow-500 text-3xl mb-2"></i>
+                <div class="text-2xl font-bold text-yellow-500">{{ stats.pending }}</div>
+                <div class="text-gray-600">Pending</div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6 text-center flex flex-col items-center">
+                <i class="fa-solid fa-spinner text-blue-600 text-3xl mb-2 animate-spin"></i>
+                <div class="text-2xl font-bold text-blue-600">{{ stats.in_progress }}</div>
+                <div class="text-gray-600">In Progress</div>
+            </div>
+        </div>
+        <!-- Requests Table -->
+        <section id="requests">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
+                <h3 class="text-2xl font-bold text-purple-800">All Requests</h3>
+                <form method="GET" action="/admin_dashboard" class="flex flex-wrap gap-2 items-end">
+                    <select name="institution" class="block text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-2">
+                        <option value="">All Institutions</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="ITI">ITI</option>
+                        <option value="Polytechnic">Polytechnic</option>
+                        <option value="School">School</option>
+                    </select>
+                    <select name="type" class="block text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-2">
+                        <option value="">All Types</option>
+                        <option value="System Services">System Services</option>
+                        <option value="Printer Services">Printer Services</option>
+                        <option value="Network Services">Network Services</option>
+                        <option value="Projector">Projector</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <select name="status" class="block text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-2">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="in_progress">In Progress</option>
+                    </select>
+                    <input type="date" name="date" class="block text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-4 py-2">
+                    <button type="submit" class="bg-purple-800 hover:bg-indigo-900 text-white font-bold py-2 px-6 rounded-xl shadow transition text-lg">Filter</button>
+                </form>
+            </div>
+            <div class="table-responsive overflow-x-auto rounded-xl shadow-lg">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr class="bg-purple-100">
+                            <th class="py-3 px-4 text-left">ID</th>
+                            <th class="py-3 px-4 text-left">Institution</th>
+                            <th class="py-3 px-4 text-left">Type</th>
+                            <th class="py-3 px-4 text-left">Name</th>
+                            <th class="py-3 px-4 text-left">Status</th>
+                            <th class="py-3 px-4 text-left">Date</th>
+                            <th class="py-3 px-4 text-left">Image</th>
+                            <th class="py-3 px-4 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for req in requests %}
+                        <tr class="border-b hover:bg-purple-50 transition">
+                            <td class="py-2 px-4 font-semibold">{{ req.id }}</td>
+                            <td class="py-2 px-4">{{ req.institution }}</td>
+                            <td class="py-2 px-4">{{ req.type }}</td>
+                            <td class="py-2 px-4">{{ req.name }}</td>
+                            <td class="py-2 px-4">
+                                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold
+                                    {% if req.status == 'resolved' %}bg-green-100 text-green-700{% elif req.status == 'pending' %}bg-yellow-100 text-yellow-700{% elif req.status == 'in_progress' %}bg-blue-100 text-blue-700{% else %}bg-gray-100 text-gray-700{% endif %}">
+                                    {{ req.status|capitalize }}
+                                </span>
+                            </td>
+                            <td class="py-2 px-4">{{ req.date }}</td>
+                            <td class="py-2 px-4">
+                                {% if req.image_url %}
+                                <button type="button" onclick="showImageModal('{{ req.image_url }}')" class="text-purple-800 hover:text-indigo-900">
+                                    <i class="fa-solid fa-eye text-2xl"></i>
+                                </button>
+                                {% else %}-{% endif %}
+                            </td>
+                            <td class="py-2 px-4 flex flex-wrap gap-2">
+                                <a href="/admin_edit/{{ req.id }}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                                <a href="/admin_delete/{{ req.id }}" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center gap-1"><i class="fa-solid fa-trash"></i> Delete</a>
+                                <a href="/admin_status/{{ req.id }}" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1"><i class="fa-solid fa-arrows-rotate"></i> Update</a>
+                                <a href="/admin_view/{{ req.id }}" class="bg-purple-800 text-white px-3 py-1 rounded hover:bg-purple-900 flex items-center gap-1"><i class="fa-solid fa-eye"></i> View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- User Management Table -->
+        <section id="users" class="mt-12">
+            <h3 class="text-2xl font-bold text-purple-800 mb-4 text-center md:text-left">User Management</h3>
+            <div class="table-responsive overflow-x-auto rounded-xl shadow-lg">
+                <table class="min-w-full bg-white">
+                    <thead>
+                        <tr class="bg-purple-100">
+                            <th class="py-3 px-4 text-left">ID</th>
+                            <th class="py-3 px-4 text-left">Name</th>
+                            <th class="py-3 px-4 text-left">Institution</th>
+                            <th class="py-3 px-4 text-left">Mobile</th>
+                            <th class="py-3 px-4 text-left">Email</th>
+                            <th class="py-3 px-4 text-left">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr class="border-b hover:bg-purple-50 transition">
+                            <td class="py-2 px-4 font-semibold">{{ user.id }}</td>
+                            <td class="py-2 px-4">{{ user.name }}</td>
+                            <td class="py-2 px-4">{{ user.institution }}</td>
+                            <td class="py-2 px-4">{{ user.mobile }}</td>
+                            <td class="py-2 px-4">{{ user.email }}</td>
+                            <td class="py-2 px-4 flex flex-wrap gap-2">
+                                <a href="/admin_user_edit/{{ user.id }}" class="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 flex items-center gap-1"><i class="fa-solid fa-pen-to-square"></i> Edit</a>
+                                <a href="/admin_user_delete/{{ user.id }}" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 flex items-center gap-1"><i class="fa-solid fa-trash"></i> Delete</a>
+                                <a href="/admin_user_reset/{{ user.id }}" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600 flex items-center gap-1"><i class="fa-solid fa-key"></i> Reset</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- Image Modal -->
+        <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl shadow-lg p-6 relative">
+                <button onclick="closeImageModal()" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                <img id="modalImage" src="" alt="Issue Image" class="max-w-lg max-h-[70vh] rounded border">
+            </div>
+        </div>
+    </main>
+    <!-- Desktop Footer -->
+    <footer class="hidden md:block w-full bg-gray-100 text-purple-800 text-center py-3 text-sm fixed bottom-0 left-0 z-40">
+        &copy; 2025 PMC Tech Admin | Developed by <a href="https://zeonytechnologies.com" class="underline">Zeony Technologies.</a>
+    </footer>
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-purple-900 text-white flex justify-around items-center py-2 shadow-lg md:hidden z-50">
+        <a href="/admin_dashboard" class="flex flex-col items-center text-xs"><i class="fa-solid fa-table-list text-lg mb-1"></i>Dashboard</a>
+        <a href="#requests" class="flex flex-col items-center text-xs"><i class="fa-solid fa-clipboard-list text-lg mb-1"></i>Requests</a>
+        <a href="#users" class="flex flex-col items-center text-xs"><i class="fa-solid fa-users text-lg mb-1"></i>Users</a>
+        <a href="/logout" class="flex flex-col items-center text-xs"><i class="fa-solid fa-right-from-bracket text-lg mb-1"></i>Logout</a>
+    </nav>
+    <!-- Mobile Footer -->
+    <footer class="fixed bottom-12 left-0 right-0 bg-gray-100 text-purple-800 text-center py-2 text-xs md:hidden z-40">
+        &copy; 2025 PMC Tech Admin | Developed by <a href="https://zeonytechnologies.com" class="underline">Zeony Technologies.</a>
+    </footer>
+    <script>
+        function showImageModal(url) {
+            document.getElementById('imageModal').classList.remove('hidden');
+            document.getElementById('modalImage').src = url;
+        }
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('modalImage').src = '';
+        }
+    </script>
+</body>
+</html>
