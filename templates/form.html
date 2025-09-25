@@ -12,11 +12,11 @@
     <nav class="bg-purple-800 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <img src="logo1.jpg" alt="PMC Logo" class="h-12 w-12 rounded-full border-2 border-white">
+                <img src="{{ url_for('static', filename='logo1.jpg') }}" alt="PMC Logo" class="h-12 w-12 border-2 border-white">
                 <span class="font-bold text-2xl text-white tracking-wide">PMC Tech</span>
             </div>
             <div>
-                <a href="/" class="text-white hover:text-indigo-200 font-semibold transition">Home</a>
+                <a href="/" class="text-white hover:text-indigo-200 font-semibold transition">Log out</a>
             </div>
         </div>
     </nav>
