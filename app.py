@@ -456,4 +456,4 @@ def admin_user_reset(user_id):
     return render_template('admin_reset_user.html', user=user, error=error)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
