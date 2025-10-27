@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static_files', filename='css/responsive.css') }}">
+    <style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    main {
+        flex: 1 0 auto;
+    }
+    .gradient-bg { background: linear-gradient(135deg, #e5e7eb 0%, #f8fafc 100%); }
+    .card-shadow { box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15); }
+        
+        /* Desktop-first approach for sidebar */
+        aside {
+            width: 256px; /* w-64 */
+            min-height: 100vh;
+            position: static;
+        }
+        
+        main {
+            padding: 2.5rem 2rem; /* px-8 py-10 */
+        }
+        /* Mobile header black gradient */
+        @media (max-width: 1023px) {
+          .mobile-header-gradient {
+            background: linear-gradient(135deg, #232526 0%, #414345 100%) !important;
+            padding-left: 1rem;
+            padding-right: 1rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+          }
+        }
+        
+        /* Mobile styles override desktop */
+        @media (max-width: 1023px) {
+            body {
+                flex-direction: column !important;
+                padding-bottom: 120px; /* Space for mobile nav + footer */
+            }
+            
+            aside {
+                display: none !important; /* Hide sidebar on mobile/tablet */
+            }
+            
+            main {
+                padding: 1rem !important;
+                margin-top: 60px !important; /* Add margin to prevent content hiding under nav */
+            }
+            
+            .filter-form {
+                flex-direction: column !important;
+                gap: 1rem !important;
+            }
+            
+            .filter-form > * {
+                width: 100% !important;
+            }
+        }
+        
+        @media (max-width: 767px) {
+            main {
+                padding: 0.5rem !important;
+            }
+            
+            .grid-cols-1, .md\:grid-cols-4 {
+                grid-template-columns: 1fr !important;
+            }
+            
+            .table-responsive {
+                overflow-x: auto !important;
+            }
+            
+            .actions-col {
+                min-width: 180px !important;
+            }
+            
+            .actions-row {
+                flex-wrap: wrap !important;
+                gap: 0.25rem !important;
+            }
+            
+            .action-btn {
+                font-size: 0.75rem !important;
+                padding: 0.25rem 0.5rem !important;
+            }
+            
+            .filter-container {
+                flex-direction: column !important;
+                align-items: stretch !important;
+            }
+            
+            .export-btn {
+                margin-top: 1rem !important;
+                align-self: stretch !important;
+                justify-content: center !important;
+            }
+        }
+        
+        /* Loading button styles */
+        .btn-loading {
+            position: relative;
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading .btn-text {
+            visibility: hidden;
+        }
+        
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            top: 50%;
+            left: 50%;
+            margin-left: -8px;
+            margin-top: -8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex lg:flex-row flex-col gradient-bg">
+    <!-- Mobile Top Navigation Bar with Logo and Hamburger Menu (right aligned) -->
+    <nav class="fixed top-0 left-0 right-0 text-white flex items-center justify-between py-2 px-4 shadow-lg lg:hidden z-50" style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+        <img src="{{ url_for('img', filename='netfra.png') }}" alt="NETFRA Logo" class="h-8 w-auto max-w-[38px] object-contain" style="margin-right: 8px;">
+        <button id="mobileMenuBtn" class="focus:outline-none ml-auto">
+            <span class="block w-7 h-1 bg-white mb-1 rounded"></span>
+            <span class="block w-7 h-1 bg-white mb-1 rounded"></span>
+            <span class="block w-7 h-1 bg-white rounded"></span>
+        </button>
+    </nav>
+    <!-- Mobile Menu Drawer -->
+    <div id="mobileMenuDrawer" class="fixed top-0 left-0 right-0 bg-white text-gray-900 shadow-lg z-50 transform -translate-y-full transition-transform duration-300 lg:hidden">
+        <div class="flex flex-col items-center py-6 gap-4">
+            <a href="/admin_dashboard" class="flex items-center gap-2 text-blue-700 font-semibold text-lg"><i class="fa-solid fa-table-list"></i> Dashboard</a>
+            <a href="#requests" class="flex items-center gap-2 text-blue-700 font-semibold text-lg" onclick="document.getElementById('requests').scrollIntoView({behavior: 'smooth'}); closeMobileMenu();"><i class="fa-solid fa-clipboard-list"></i> Requests</a>
+            <a href="/export_requests" class="flex items-center gap-2 text-blue-700 font-semibold text-lg"><i class="fa-solid fa-file-csv"></i> Export</a>
+            <a href="/logout" class="flex items-center gap-2 text-blue-700 font-semibold text-lg"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </div>
+    </div>
+    <script>
+        // Hamburger menu toggle
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const menuDrawer = document.getElementById('mobileMenuDrawer');
+        function closeMobileMenu() {
+            menuDrawer.style.transform = 'translateY(-100%)';
+        }
+        menuBtn.addEventListener('click', function() {
+            if (menuDrawer.style.transform === 'translateY(0%)') {
+                menuDrawer.style.transform = 'translateY(-100%)';
+            } else {
+                menuDrawer.style.transform = 'translateY(0%)';
+            }
+        });
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!menuDrawer.contains(e.target) && !menuBtn.contains(e.target)) {
+                closeMobileMenu();
+            }
+        });
+    </script>
+    <!-- Sidebar - Visible on desktop (lg and above) -->
+    <aside class="hidden lg:flex lg:flex-col w-64 text-white py-8 px-6 min-h-screen shadow-xl" style="background: linear-gradient(135deg, #232526 0%, #414345 100%);">
+        <div class="flex items-center mb-10">
+            
+           <div class="flex items-center justify-center h-10 w-24 xs:h-12 xs:w-28 sm:h-14 sm:w-32 md:h-16 md:w-40 lg:h-20 lg:w-52 xl:h-24 xl:w-64 2xl:h-28 2xl:w-72 transition-all duration-200">
+                        <img src="{{ url_for('img', filename='netfra.png') }}" alt="PMC Logo" class="object-contain h-full w-full max-h-12 max-w-[160px] xs:max-h-14 xs:max-w-[180px] sm:max-h-16 sm:max-w-[200px] md:max-h-20 md:max-w-[240px] lg:max-h-24 lg:max-w-[280px] xl:max-h-28 xl:max-w-[320px] 2xl:max-h-32 2xl:max-w-[360px]" />
+                    </div>
+        </div>
+        <nav class="flex flex-col gap-4 flex-grow">
+            <a href="/admin_dashboard" class="flex items-center gap-2 py-2 px-4 rounded-lg bg-blue-700 text-white"><i class="fa-solid fa-table-list"></i> Dashboard</a>
+            <a href="#requests" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-blue-700 transition"><i class="fa-solid fa-clipboard-list"></i> Requests</a>
+            <a href="/logout" class="flex items-center gap-2 py-2 px-4 rounded-lg hover:bg-blue-700 transition"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content Container -->
+    <div class="flex-1 flex flex-col">
+        <!-- Main Content -->
+        <main class="flex-grow px-4 lg:px-8 py-6 lg:py-10">
+            <!-- Removed duplicate logo and gradient header for mobile -->
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-10">
+                <div class="bg-white rounded-xl shadow-lg p-4 lg:p-6 text-center flex flex-col items-center">
+                    <i class="fa-solid fa-list-check text-blue-800 text-2xl lg:text-3xl mb-2"></i>
+                    <div class="text-xl lg:text-2xl font-bold text-blue-800">{{ stats.total }}</div>
+                    <div class="text-gray-600 text-sm lg:text-base">Total Requests</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-4 lg:p-6 text-center flex flex-col items-center">
+                    <i class="fa-solid fa-circle-check text-green-600 text-2xl lg:text-3xl mb-2"></i>
+                    <div class="text-xl lg:text-2xl font-bold text-green-600">{{ stats.resolved }}</div>
+                    <div class="text-gray-600 text-sm lg:text-base">Resolved</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-4 lg:p-6 text-center flex flex-col items-center">
+                    <i class="fa-solid fa-hourglass-half text-yellow-500 text-2xl lg:text-3xl mb-2"></i>
+                    <div class="text-xl lg:text-2xl font-bold text-yellow-500">{{ stats.pending }}</div>
+                    <div class="text-gray-600 text-sm lg:text-base">Pending</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-4 lg:p-6 text-center flex flex-col items-center">
+                    <i class="fa-solid fa-spinner text-blue-600 text-2xl lg:text-3xl mb-2 animate-spin"></i>
+                    <div class="text-xl lg:text-2xl font-bold text-blue-600">{{ stats.in_progress }}</div>
+                    <div class="text-gray-600 text-sm lg:text-base">In Progress</div>
+                </div>
+            </div>
+
+
+            <!-- Requests Table Section -->
+            <section id="requests">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-4 gap-4 filter-container">
+                    <h3 class="text-xl lg:text-2xl font-bold text-blue-800">Pending & In Progress Requests</h3>
+                    <div class="flex flex-col lg:flex-row gap-4 items-stretch lg:items-end w-full lg:w-auto">
+                        <form method="GET" action="/admin_dashboard" class="flex flex-col sm:flex-row flex-wrap gap-2 items-stretch sm:items-end filter-form">
+                            <select name="institution" class="block text-sm lg:text-base rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 lg:px-4" onchange="this.form.submit()">
+                                <option value="">All Institutions</option>
+                                <option value="Engineering" {% if request.args.get('institution') == 'Engineering' %}selected{% endif %}>Engineering</option>
+                                <option value="ITI" {% if request.args.get('institution') == 'ITI' %}selected{% endif %}>ITI</option>
+                                <option value="Polytechnic" {% if request.args.get('institution') == 'Polytechnic' %}selected{% endif %}>Polytechnic</option>
+                                <option value="School" {% if request.args.get('institution') == 'School' %}selected{% endif %}>School</option>
+                            </select>
+                            <select name="type" class="block text-sm lg:text-base rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 lg:px-4" onchange="this.form.submit()">
+                                <option value="">All Types</option>
+                                <option value="System Services" {% if request.args.get('type') == 'System Services' %}selected{% endif %}>System Services</option>
+                                <option value="Printer Services" {% if request.args.get('type') == 'Printer Services' %}selected{% endif %}>Printer Services</option>
+                                <option value="Network Services" {% if request.args.get('type') == 'Network Services' %}selected{% endif %}>Network Services</option>
+                                <option value="Projector" {% if request.args.get('type') == 'Projector' %}selected{% endif %}>Projector</option>
+                                <option value="Other" {% if request.args.get('type') == 'Other' %}selected{% endif %}>Other</option>
+                            </select>
+                            <select name="status" class="block text-sm lg:text-base rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 lg:px-4" onchange="this.form.submit()">
+                                <option value="">All Status</option>
+                                <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="resolved" {% if request.args.get('status') == 'resolved' %}selected{% endif %}>Resolved</option>
+                                <option value="in_progress" {% if request.args.get('status') == 'in_progress' %}selected{% endif %}>In Progress</option>
+                            </select>
+                            <input type="date" name="date" class="block text-sm lg:text-base rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 lg:px-4" value="{{ request.args.get('date', '') }}" onchange="this.form.submit()">
+                        </form>
+                        <a id="exportBtn" href="#" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg shadow transition text-sm btn-action flex items-center justify-center gap-1 export-btn" onclick="showButtonLoading(this)">
+                            <span class="btn-text">
+                                <i class="fa-solid fa-file-csv"></i> Export CSV
+                            </span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Pending & In Progress Table -->
+                <div class="table-responsive overflow-x-auto rounded-xl shadow-lg mb-8">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="bg-blue-100">
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">ID</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Institution</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Type</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Name</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Status</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Date</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Image</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                                {% if req.status != 'resolved' %}
+                                <tr class="border-b hover:bg-blue-50 transition">
+                                    <td class="py-2 px-2 lg:px-4 font-semibold text-xs lg:text-sm">{{ req.id }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.institution }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.type }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.name }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">
+                                        <span class="inline-block px-2 lg:px-3 py-1 rounded-full text-xs font-bold
+                                            {% if req.status == 'resolved' %}bg-green-100 text-green-700{% elif req.status == 'pending' %}bg-yellow-100 text-yellow-700{% elif req.status == 'in_progress' %}bg-blue-100 text-blue-700{% else %}bg-gray-3000 text-gray-700{% endif %}">
+                                            {{ req.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.date }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">
+                                        {% if req.image_url %}
+                                        <button type="button" onclick="showImageModal('{{ req.image_url }}')" class="text-blue-800 hover:text-blue-900">
+                                            <i class="fa-solid fa-eye text-lg lg:text-2xl"></i>
+                                        </button>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="py-2 px-2 lg:px-4 actions-row">
+                                        <div class="flex flex-wrap gap-1 lg:gap-2">
+                                            <a href="/admin_edit/{{ req.id }}" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this)">
+                                                <span class="btn-text"><i class="fa-solid fa-pen-to-square"></i> <span class="hidden lg:inline">Edit</span></span>
+                                            </a>
+                                            <a href="/admin_delete/{{ req.id }}" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this); return confirm('Are you sure you want to delete this request?')">
+                                                <span class="btn-text"><i class="fa-solid fa-trash"></i> <span class="hidden lg:inline">Delete</span></span>
+                                            </a>
+                                            <a href="/admin_status/{{ req.id }}" class="bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this)">
+                                                <span class="btn-text"><i class="fa-solid fa-arrows-rotate"></i> <span class="hidden lg:inline">Update</span></span>
+                                            </a>
+                                            <a href="/admin_view/{{ req.id }}" class="bg-blue-800 text-white px-2 py-1 rounded hover:bg-blue-900 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this)">
+                                                <span class="btn-text"><i class="fa-solid fa-eye"></i> <span class="hidden lg:inline">View</span></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Resolved Table -->
+                <h3 class="text-xl lg:text-2xl font-bold text-green-700 mb-2">Resolved Requests</h3>
+                <div class="table-responsive overflow-x-auto rounded-xl shadow-lg">
+                    <table class="min-w-full bg-white">
+                        <thead>
+                            <tr class="bg-green-100">
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">ID</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Institution</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Type</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Name</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Status</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Date</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm">Image</th>
+                                <th class="py-2 lg:py-3 px-2 lg:px-4 text-left text-xs lg:text-sm actions-col">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for req in requests %}
+                                {% if req.status == 'resolved' %}
+                                <tr class="border-b hover:bg-green-50 transition">
+                                    <td class="py-2 px-2 lg:px-4 font-semibold text-xs lg:text-sm">{{ req.id }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.institution }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.type }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.name }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">
+                                        <span class="inline-block px-2 lg:px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                                            {{ req.status|capitalize }}
+                                        </span>
+                                    </td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">{{ req.date }}</td>
+                                    <td class="py-2 px-2 lg:px-4 text-xs lg:text-sm">
+                                        {% if req.image_url %}
+                                        <button type="button" onclick="showImageModal('{{ req.image_url }}')" class="text-purple-800 hover:text-indigo-900">
+                                            <i class="fa-solid fa-eye text-lg lg:text-2xl"></i>
+                                        </button>
+                                        {% else %}-{% endif %}
+                                    </td>
+                                    <td class="py-2 px-2 lg:px-4 actions-row">
+                                        <div class="flex flex-wrap gap-1 lg:gap-2">
+                                            <a href="/admin_edit/{{ req.id }}" class="bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this)">
+                                                <span class="btn-text"><i class="fa-solid fa-pen-to-square"></i> <span class="hidden lg:inline">Edit</span></span>
+                                            </a>
+                                            <a href="/admin_delete/{{ req.id }}" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this); return confirm('Are you sure you want to delete this request?')">
+                                                <span class="btn-text"><i class="fa-solid fa-trash"></i> <span class="hidden lg:inline">Delete</span></span>
+                                            </a>
+                                        
+                                           
+                                            <a href="/admin_view/{{ req.id }}" class="bg-purple-800 text-white px-2 py-1 rounded hover:bg-purple-900 flex items-center gap-1 btn-action action-btn text-xs lg:text-sm" onclick="showButtonLoading(this)">
+                                                <span class="btn-text"><i class="fa-solid fa-eye"></i> <span class="hidden lg:inline">View</span></span>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Image Modal -->
+            <div id="imageModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+                <div class="bg-white rounded-xl shadow-lg p-6 relative">
+                    <button onclick="closeImageModal()" class="absolute top-2 right-2 text-gray-500 hover:text-red-600 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+                    <img id="modalImage" src="" alt="Issue Image" class="max-w-lg max-h-[70vh] rounded border">
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer Start -->
+
+
+    <script>
+        // Dynamically set export URL to include all filter params
+        document.addEventListener('DOMContentLoaded', function() {
+            function buildExportUrl() {
+                const params = new URLSearchParams(window.location.search);
+                let url = '/export_requests';
+                if ([...params].length > 0) {
+                    url += '?' + params.toString();
+                }
+                return url;
+            }
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.setAttribute('href', buildExportUrl());
+            }
+        });
+        function showImageModal(url) {
+            document.getElementById('imageModal').classList.remove('hidden');
+            document.getElementById('modalImage').src = url;
+        }
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('modalImage').src = '';
+        }
+        
+        function showButtonLoading(button) {
+            button.classList.add('btn-loading');
+            setTimeout(() => {
+                button.classList.remove('btn-loading');
+            }, 5000);
+            return true;
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.btn-action');
+            buttons.forEach(button => {
+                button.classList.remove('btn-loading');
+            });
+        });
+        
+        document.addEventListener('submit', function(e) {
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            if (submitButton) {
+                showButtonLoading(submitButton);
+            }
+        });
+    </script>
+        <!-- Footer Start -->
+    <footer class="bottom-0 left-0 right-0 py-1" style="z-index:50;display:flex;justify-content:center;align-items:center;">
+        <div style="max-width:700px;width:100vw;margin:0 auto;padding:0 16px;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;">
+                <p style="margin-bottom:2px;font-size:13px;color:#383839;font-weight:500;"> </p>
+                <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <span style="font-size:12px;color:#464444;opacity:0.85;">Powered by</span>
+                    <a href="https://zeonytechnologies.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;transition:all 0.3s;">
+                        <img src="img/zeony logo1 copy.png" alt="Zeony Technologies" style="height:30px;width:auto;object-fit:contain;vertical-align:middle;filter:brightness(0.95);">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+</body>
+</html>

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset User Password</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        main {
+            flex: 1 0 auto;
+        }
+        .gradient-bg { background: linear-gradient(135deg, #e0e7ff 0%, #f3f4f6 100%); }
+        .card-shadow { box-shadow: 0 8px 32px 0 rgba(60, 60, 120, 0.15); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col gradient-bg">
+    <main class="flex-grow flex items-center justify-center px-4">
+        <div class="w-full max-w-md bg-white rounded-2xl card-shadow p-4 sm:p-6 lg:p-8 mt-4 sm:mt-8 mb-4 sm:mb-8 border-2 border-indigo-100">
+            <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-purple-800 mb-4 sm:mb-6 text-center">Reset Password for {{ user.name }}</h2>
+            {% if error %}
+            <div class="bg-red-100 text-red-700 rounded-lg px-3 sm:px-4 py-2 mb-4 text-center text-sm sm:text-base">{{ error }}</div>
+            {% endif %}
+            <form method="POST" class="space-y-4 sm:space-y-5">
+                <div>
+                    <label class="block text-base sm:text-lg font-semibold text-purple-800 mb-1">New Password</label>
+                    <div class="relative">
+                        <input type="password" name="new_password" id="new_password" class="block w-full text-base sm:text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 sm:px-4 sm:py-3 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                        <button type="button" onclick="togglePassword('new_password')" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i class="fas fa-eye text-gray-400 hover:text-gray-600" id="new_password_icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-base sm:text-lg font-semibold text-purple-800 mb-1">Confirm Password</label>
+                    <div class="relative">
+                        <input type="password" name="confirm_password" id="confirm_password" class="block w-full text-base sm:text-lg rounded-xl border border-gray-300 bg-white shadow-sm px-3 py-2 sm:px-4 sm:py-3 pr-10 focus:ring-2 focus:ring-purple-500 focus:border-transparent" required>
+                        <button type="button" onclick="togglePassword('confirm_password')" class="absolute inset-y-0 right-0 flex items-center pr-3">
+                            <i class="fas fa-eye text-gray-400 hover:text-gray-600" id="confirm_password_icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                    <button type="submit" class="bg-purple-800 hover:bg-indigo-900 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-xl shadow transition text-base sm:text-lg w-full sm:flex-1">
+                        <i class="fas fa-key mr-2"></i>Reset Password
+                    </button>
+                    <a href="/admin_dashboard" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 sm:py-3 px-4 sm:px-6 rounded-xl shadow transition text-base sm:text-lg w-full sm:flex-1 text-center">
+                        <i class="fas fa-arrow-left mr-2"></i>Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+    <!-- Footer Start -->
+    <footer class="bottom-0 left-0 right-0 py-1" style="z-index:50;display:flex;justify-content:center;align-items:center;">
+        <div style="max-width:700px;width:100vw;margin:0 auto;padding:0 16px;">
+            <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;">
+                <p style="margin-bottom:2px;font-size:13px;color:#383839;font-weight:500;"> </p>
+                <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+                    <span style="font-size:12px;color:#464444;opacity:0.85;">Powered by</span>
+                    <a href="https://zeonytechnologies.com" target="_blank" rel="noopener noreferrer" style="display:inline-block;transition:all 0.3s;">
+                        <img src="img/zeony logo1 copy.png" alt="Zeony Technologies" style="height:30px;width:auto;object-fit:contain;vertical-align:middle;filter:brightness(0.95);">
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer End -->
+    <script>
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(fieldId + '_icon');
+            
+            if (field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+    </body>
+    </html>
